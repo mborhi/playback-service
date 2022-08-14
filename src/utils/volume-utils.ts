@@ -44,6 +44,7 @@ export const changeTrackVolume = async (access_token: string, device_id: string,
     try {
         return await response.json();
     } catch (error) {
+        console.error(error);
         throw error;
     }
 }
