@@ -30,7 +30,6 @@ export const playSong = async (trackURI: string, device_id: string, access_token
         "position_ms": 0
     }
     let url = baseURL + "/me/player/play?" + stringify(reqParams);
-    // console.log('playback url: ', url);
     const response = await fetch(url, {
         method: 'PUT',
         body: JSON.stringify(bodyParams),
@@ -52,7 +51,6 @@ interface PlaybackStateData {
     progress: number
     availableActions: SpotifyApi.ActionsObject
 }
-
 
 /**
  * Retrieves information about the current playback of the account identified by the given access token
@@ -78,7 +76,18 @@ export const getPlaybackStateData = async (access_token: string, market = 'US') 
             'Authorization': `Bearer ${access_token}`
         }
     });
-    if (responseIsError(response)) return await response.json();
+    // handle responses which are errors
+    if (responseIsError(response)) {
+        return await response.json();
+    } else if (response.status === 204) { // playback is not active or available 
+        return {
+            progress: 0,
+            availableActions: {
+                disallows: {}
+            }
+        }
+    }
+    // process the valid response data
     try {
         const data: SpotifyApi.CurrentPlaybackResponse = await response.json();
         const playbackData: PlaybackStateData = {
