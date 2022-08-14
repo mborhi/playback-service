@@ -1,7 +1,8 @@
 import endpointConfig from "../../endpoint.config";
 import { stringify } from 'querystring';
 import fetch from "node-fetch";
-import { responseIsError } from "./fetch-utils";
+import { dataIsError, responseIsError } from "./fetch-utils";
+import { PlaybackStateData } from "../../interfaces";
 
 const baseURL = endpointConfig.SpotifyAPIBaseURL;
 
@@ -22,12 +23,17 @@ const baseURL = endpointConfig.SpotifyAPIBaseURL;
  * @returns a JSON response whether the action was successful
  */
 export const playSong = async (trackURI: string, device_id: string, access_token: string) => {
+    const maybePlaybackData = await getPlaybackStateData(access_token);
+    if (dataIsError(maybePlaybackData)) {
+        return maybePlaybackData;
+    }
+    const playbackData = maybePlaybackData as PlaybackStateData;
     const reqParams = {
         device_id: device_id
     }
     const bodyParams = {
         "uris": [trackURI],
-        "position_ms": 0
+        "position_ms": playbackData.progress
     }
     let url = baseURL + "/me/player/play?" + stringify(reqParams);
     const response = await fetch(url, {
@@ -47,11 +53,6 @@ export const playSong = async (trackURI: string, device_id: string, access_token
     }
 }
 
-interface PlaybackStateData {
-    progress: number
-    availableActions: SpotifyApi.ActionsObject
-}
-
 /**
  * Retrieves information about the current playback of the account identified by the given access token
  * Uses Get Playback State Spotify Web API call:
@@ -66,7 +67,7 @@ interface PlaybackStateData {
  * @param market the market where the content is available
  * @returns information about the current playback of the account
  */
-export const getPlaybackStateData = async (access_token: string, market = 'US') => {
+export const getPlaybackStateData = async (access_token: string, market = 'US'): Promise<PlaybackStateData | SpotifyApi.ErrorObject> => {
     const url = baseURL + '/me/player?' + stringify({ "market": market });
     const response = await fetch(url, {
         method: "GET",
