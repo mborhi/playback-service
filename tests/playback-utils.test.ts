@@ -13,8 +13,9 @@ describe("Play", () => {
 
     describe("Play Song", () => {
 
+        const mock_trackURI = "spotify:mocktrack:uri"
+
         it("correctly returns the Spotify Web API JSON response", async () => {
-            const mock_trackURI = "spotify:mocktrack:uri"
             const mock_response = "Playback started";
             mockedFetch.mockReturnValue(Promise.resolve(new Response(
                 JSON.stringify(mock_response), { status: 204 }
@@ -24,12 +25,25 @@ describe("Play", () => {
         });
 
         it("correctly throws an error when Spotify Web API response can't be processed", () => {
-            const mock_trackURI = "spotify:mocktrack:uri"
             const mock_response = "Playback started";
             mockedFetch.mockReturnValue(Promise.resolve(new Response(
                 mock_response, { status: 204 }
             )));
             expect(playSong(mock_trackURI, mock_device_id, mock_token)).rejects.toThrowError();
+        });
+
+        it("correctly returns Spotify Web API response error when playback state request is rejected", async () => {
+            const mock_response_error = {
+                "error": {
+                    "status": 401,
+                    "message": "Invalid token"
+                }
+            };
+            mockedFetch.mockReturnValueOnce(Promise.resolve(new Response(
+                JSON.stringify(mock_response_error), { status: 401 }
+            )));
+            const result = await playSong(mock_trackURI, mock_device_id, mock_token);
+            expect(result).toEqual(mock_response_error);
         });
 
     });
