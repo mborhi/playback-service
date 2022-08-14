@@ -181,6 +181,18 @@ describe("Play", () => {
             expect(results).toEqual(mock_response_error);
         });
 
+        it("correctly handles when playback is not active or available", async () => {
+            mockedFetch.mockReturnValue(Promise.resolve(new Response(
+                JSON.stringify("Playback not available or active"), { status: 204 }
+            )));
+            const expected = {
+                progress: 0,
+                availableActions: { disallows: {} }
+            }
+            const results = await getPlaybackStateData(mock_token);
+            expect(results).toEqual(expected);
+        })
+
         it("correctly throws an error when response can't be processed", async () => {
             mockedFetch.mockReturnValue(Promise.resolve(new Response(
                 { "dne": "dne" }, { status: 200 }
