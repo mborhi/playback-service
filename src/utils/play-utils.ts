@@ -1,0 +1,92 @@
+import endpointConfig from "../../endpoint.config";
+import { stringify } from 'querystring';
+import fetch from "node-fetch";
+import { responseIsError } from "./fetch-utils";
+
+const baseURL = endpointConfig.SpotifyAPIBaseURL;
+
+/**
+ * Plays the given track uri on the specified device using the given access token
+ * Uses Set Playback Volume Spotify Web API call:
+ * 
+ * API Reference	https://developer.spotify.com/documentation/web-api/reference/#/operations/start-a-users-playback
+ * 
+ * Endpoint	        https://api.spotify.com/v1/me/player/play
+ * 
+ * HTTP Method	    PUT
+ * 
+ * OAuth	        Required
+ * @param trackURI the uri of the track to play
+ * @param device_id the id of the device to play the song on
+ * @param access_token the access token to authorize with
+ * @returns a JSON response whether the action was successful
+ */
+export const playSong = async (trackURI: string, device_id: string, access_token: string) => {
+    const reqParams = {
+        device_id: device_id
+    }
+    const bodyParams = {
+        "uris": [trackURI],
+        "position_ms": 0
+    }
+    let url = baseURL + "/me/player/play?" + stringify(reqParams);
+    // console.log('playback url: ', url);
+    const response = await fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(bodyParams),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+        }
+    });
+    try {
+        const jsonResponse = await response.json();
+        return jsonResponse;
+    } catch (error) {
+        throw error;
+    }
+}
+
+interface PlaybackStateData {
+    progress: number
+    availableActions: SpotifyApi.ActionsObject
+}
+
+
+/**
+ * Retrieves information about the current playback of the account identified by the given access token
+ * Uses Get Playback State Spotify Web API call:
+ * API Reference	https://developer.spotify.com/documentation/web-api/reference/#/operations/get-information-about-the-users-current-playback
+ * 
+ * Endpoint	https://api.spotify.com/v1/me/player
+ * 
+ * HTTP Method	GET
+ * 
+ * OAuth	Required
+ * @param access_token the users access token
+ * @param market the market where the content is available
+ * @returns information about the current playback of the account
+ */
+export const getPlaybackStateData = async (access_token: string, market = 'US') => {
+    const url = baseURL + '/me/player?' + stringify({ "market": market });
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${access_token}`
+        }
+    });
+    if (responseIsError(response)) return await response.json();
+    try {
+        const data: SpotifyApi.CurrentPlaybackResponse = await response.json();
+        const playbackData: PlaybackStateData = {
+            progress: data.progress_ms,
+            availableActions: data.actions
+        }
+        return playbackData;
+    } catch (error) {
+        throw error;
+    }
+}
