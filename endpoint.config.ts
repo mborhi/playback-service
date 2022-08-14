@@ -4,5 +4,5 @@ dotenv.config();
 export default {
     ServerURL: process.env.SERVER_URL ?? '',
     ServerPort: process.env.SERVER_PORT ?? '',
-    SpotifyAPIBaseURL: process.env.SPOTIFY_BASE_URL ?? '',
+    SpotifyAPIBaseURL: process.env.SPOTIFY_BASE_URL ?? 'https://api.spotify.com/v1',
 }
