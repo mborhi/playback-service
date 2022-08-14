@@ -1,6 +1,6 @@
 jest.mock('node-fetch');
-
 import fetch from 'node-fetch';
+import { pauseSong } from '../src/utils/pause-utils';
 import { getPlaybackStateData, playSong } from '../src/utils/play-utils';
 import { isValidVolume, changeTrackVolume } from '../src/utils/volume-utils';
 const { Response } = jest.requireActual('node-fetch');
@@ -199,11 +199,40 @@ describe("Play", () => {
             )));
             expect(getPlaybackStateData(mock_token)).rejects.toThrowError();
         });
-
     })
-
-
 });
+
+describe("Pause", () => {
+
+    it("correctly returns the recieved Spotify Web API JSON response", async () => {
+        mockedFetch.mockReturnValue(Promise.resolve(new Response(
+            JSON.stringify("Playback paused"), { status: 204 }
+        )));
+        const result = await pauseSong(mock_token, mock_device_id);
+        expect(result).toEqual("Playback paused");
+    });
+
+    it("correctly handles Spotify Web API response error", async () => {
+        const mock_response_error = {
+            "error": {
+                "status": 401,
+                "message": "Invalid token"
+            }
+        };
+        mockedFetch.mockReturnValue(Promise.resolve(new Response(
+            JSON.stringify(mock_response_error), { status: 401 }
+        )));
+        const results = await pauseSong(mock_token, mock_device_id);
+        expect(results).toEqual(mock_response_error);
+    });
+
+    it("correctly throws an error when response can't be processed", async () => {
+        mockedFetch.mockReturnValue(Promise.resolve(new Response(
+            { "dne": "dne" }, { status: 200 }
+        )));
+        expect(pauseSong(mock_token, mock_device_id)).rejects.toThrowError();
+    });
+})
 
 describe("Volume", () => {
 
