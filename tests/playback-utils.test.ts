@@ -257,12 +257,12 @@ describe("Volume", () => {
 
     });
 
-    it("correctly returns the Spotify Web API JSON response", async () => {
+    it("correctly returns the Spotify Web API JSON response if its an error", async () => {
         mockedFetch.mockReturnValue(Promise.resolve(new Response(
-            JSON.stringify({ "message": "command sent" }), { status: 204 }
+            JSON.stringify({ "error": { "status": 401, "message": "Invalid token" } }), { status: 401 }
         )));
         const response = await changeTrackVolume(mock_token, mock_device_id, 80);
-        expect(response).toEqual({ "message": "command sent" });
+        expect(response).toEqual({ "error": { "status": 401, "message": "Invalid token" } });
     });
 
 
@@ -277,11 +277,11 @@ describe("Volume", () => {
         expect(response).toEqual(expected);
     });
 
-    it("correctly throws an error when Spotify Web API response can't be processed", async () => {
-        mockedFetch.mockReturnValue(Promise.resolve(new Response(
-            "command sent", { status: 204 }
-        )));
-        // const response = await changeTrackVolume(mock_token, mock_device_id, 80);
-        expect(changeTrackVolume(mock_token, mock_device_id, 80)).rejects.toThrowError();
+    it("correctly Spotify Web API response when request is successful", async () => {
+        const mockResponseObject = new Response(
+            { status: 204, statusText: "No Content" }
+        )
+        mockedFetch.mockReturnValue(Promise.resolve(mockResponseObject));
+        expect(changeTrackVolume(mock_token, mock_device_id, 80)).resolves.toEqual(mockResponseObject);
     })
 });
