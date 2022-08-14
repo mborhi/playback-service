@@ -1,6 +1,7 @@
 import endpointConfig from "../../endpoint.config";
 import { stringify } from 'querystring';
 import fetch from "node-fetch";
+import { responseIsError } from "./fetch-utils";
 
 const baseURL = endpointConfig.SpotifyAPIBaseURL;
 
@@ -41,8 +42,11 @@ export const changeTrackVolume = async (access_token: string, device_id: string,
             'Authorization': `Bearer ${access_token}`
         }
     });
+    // response will not be a valid JSON response if request is sucessful
+    if (!responseIsError(response)) return response;
     try {
-        return await response.json();
+        const jsonResponse = await response.json();
+        return jsonResponse;
     } catch (error) {
         console.error(error);
         throw error;

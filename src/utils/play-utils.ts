@@ -45,6 +45,8 @@ export const playSong = async (trackURI: string, device_id: string, access_token
             'Authorization': `Bearer ${access_token}`
         }
     });
+    // response will not be a valid JSON response if request is sucessful
+    if (!responseIsError(response)) return response;
     try {
         const jsonResponse = await response.json();
         return jsonResponse;
