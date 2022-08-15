@@ -1,8 +1,6 @@
 # Playback Service
 
-This the playback microservice for <-- Spotify Quick Discover Link -->. It used to deliver and handle playback features.
-
----
+This the playback microservice for [Spotify Quick Discover Link](https://github.com/mborhi/Distributed-Spotify-Quick-Discover). It used to deliver and handle playback features.
 
 ## Table of Contents
 * [Quick Start](#quick-start)
@@ -10,6 +8,8 @@ This the playback microservice for <-- Spotify Quick Discover Link -->. It used 
     + [Local](#local)
 * [Service Architecture](#service-architecture)
     + [Endpoints](#endpoints)
+    + [Utilities](#utilities)
+* [Testing]
 
 ---
 
@@ -73,10 +73,42 @@ Simply press control-C in the terminal window running the server to stop the app
 
 ---
 
-## Service Architecture
+# Service Architecture
 
 This section outlines the architecture of this microservice, as well as its capabilities.
 
 ## Endpoints
 
-Three endpoints are exposed: '/playback/play', '/playback/pause', and '/playback/volume'. You can find documentation for these endpoints on Postman.
+Three endpoints are exposed: '/playback/play', '/playback/pause', and '/playback/volume'. You can find documentation for these endpoints on the Postman [Spotify Quick Discover Microservices](https://www.postman.com/research-operator-51189562/workspace/spotify-quick-discover-microservices/overview) workspace page.
+
+* __/playback/play__
+    + For starting a new song, or resuming the current one.
+    + Uses two [utility functions](#play-endpoint-utilities)
+* __/playback/pause__
+    + For pausing the current song
+    + Uses one [utility function](#pause-endpoint-utilities)
+* __/playback/volume__
+    + For setting the volume of the currently playing song.
+    + Uses two [utility functions](#volume-endpdoint-utilities)
+
+## Utilities
+
+To fulfill the services of each endpoint, a couple utilties functions are used.
+
+### Play Endpoint Utilities
+
+Two functions are used: one to request the Playback State of the currently playing song from the Spotify Web API, and one to make a request to play the supplied track.
+
+### Pause Endpoint Utilities
+
+A function which makes a request to the Spotify Web API to pause the currently playing song on the supplied Web Player device. 
+
+### Volume Endpoint Utilities
+
+Two functions are used: one to validate that the supplied volume is valid, and one to make a request to the Spotify Web API to change the volume of the currently playing song. 
+
+---
+
+# Testing
+
+Tests for the utility functions are written using the Jest testing framework. The endpoints are tested using [Postman](https://www.postman.com/research-operator-51189562/workspace/spotify-quick-discover-microservices/overview).

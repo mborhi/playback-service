@@ -44,7 +44,6 @@ router.put('/volume', async (req, res) => {
         const result = await changeTrackVolume(access_token, device_id as string, volume as unknown as number);
         res.send(result);
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             "error": {
                 "status": 500,
