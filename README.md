@@ -5,11 +5,11 @@ This the playback microservice for [Spotify Quick Discover Link](https://github.
 ## Table of Contents
 * [Quick Start](#quick-start)
     + [Docker](#docker)
-    + [Local](#local)
+    + [GitHub](#github)
 * [Service Architecture](#service-architecture)
     + [Endpoints](#endpoints)
     + [Utilities](#utilities)
-* [Testing]
+* [Testing](#testing)
 
 ---
 
@@ -49,7 +49,7 @@ To stop the container, use the command:
 docker stop mborhi/spotify-quick-discover/playback-service
 ```
 
-## Local
+## GitHub
 
 Alternatively, you can clone this repository from GitHub and use the following commands to run the application on your local machine:
 
